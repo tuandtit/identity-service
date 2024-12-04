@@ -17,6 +17,7 @@ public enum ErrorCode {
     INVALID_JWT_PROCESSING(1008, "Failed to process the JWT token due to cryptographic or format issues. Ensure the token is correctly signed and encrypted.", HttpStatus.BAD_REQUEST),
     INPUT_DATA_PARSE_ERROR(1009, "Unable to parse the input data. Please ensure the format is correct and matches the expected pattern.", HttpStatus.BAD_REQUEST),
     INVALID_DOB(1010, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    LOGIN_REQUIRED(1011, "You need to log in to perform this action.", HttpStatus.UNAUTHORIZED),
     ;
     private final int code;
     private final String message;
