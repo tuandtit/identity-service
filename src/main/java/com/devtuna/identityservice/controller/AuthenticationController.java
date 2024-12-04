@@ -3,6 +3,7 @@ package com.devtuna.identityservice.controller;
 import com.devtuna.identityservice.dto.request.AuthenticationRequest;
 import com.devtuna.identityservice.dto.request.IntrospectRequest;
 import com.devtuna.identityservice.dto.request.LogoutRequest;
+import com.devtuna.identityservice.dto.request.RefreshRequest;
 import com.devtuna.identityservice.dto.response.ApiResponse;
 import com.devtuna.identityservice.dto.response.AuthenticationResponse;
 import com.devtuna.identityservice.dto.response.IntrospectResponse;
@@ -33,6 +34,7 @@ public class AuthenticationController {
         var result = authenticationService.authenticate(request);
         return ApiResponse.<AuthenticationResponse>builder()
                 .code(1000)
+                .message("Get token successfully")
                 .result(result)
                 .build();
     }
@@ -43,6 +45,18 @@ public class AuthenticationController {
         var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .code(1000)
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> refreshToken(
+            @RequestBody RefreshRequest request
+    ) throws JOSEException, ParseException {
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(1000)
+                .message("Refresh token successfully")
                 .result(result)
                 .build();
     }

@@ -3,6 +3,7 @@ package com.devtuna.identityservice.service;
 import com.devtuna.identityservice.dto.request.AuthenticationRequest;
 import com.devtuna.identityservice.dto.request.IntrospectRequest;
 import com.devtuna.identityservice.dto.request.LogoutRequest;
+import com.devtuna.identityservice.dto.request.RefreshRequest;
 import com.devtuna.identityservice.dto.response.AuthenticationResponse;
 import com.devtuna.identityservice.dto.response.IntrospectResponse;
 import com.devtuna.identityservice.entity.InvalidatedToken;
@@ -22,8 +23,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -48,11 +47,19 @@ public class AuthenticationService {
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
+    @NonFinal
+    @Value("${jwt.valid-duration}")
+    protected long VALID_DURATION;
+
+    @NonFinal
+    @Value("${jwt.refreshable-duration}")
+    protected long REFRESHABLE_DURATION;
+
     public IntrospectResponse introspect(IntrospectRequest request)
             throws JOSEException, ParseException {
         boolean isValid = true;
         try {
-            verifyToken(request.getToken());
+            verifyToken(request.getToken(), false);
         } catch (AppException exception) {
             isValid = false;
         }
@@ -74,17 +81,22 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        var token = generateToken(user);
-
         return AuthenticationResponse.builder()
-                .token(token)
+                .token(generateToken(user))
                 .authenticated(true)
                 .build();
     }
 
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
-        var signToken = verifyToken(request.getToken());
+        try {
+            var signToken = verifyToken(request.getToken(), true);
+            disableToken(signToken);
+        } catch (AppException e) {
+            log.info("Token already expired");
+        }
+    }
 
+    private void disableToken(SignedJWT signToken) throws ParseException {
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
 
@@ -96,21 +108,42 @@ public class AuthenticationService {
         invalidatedTokenRepo.save(invalidatedToken);
     }
 
-    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+    private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        Date expiredTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expiredTime = (isRefresh) ?
+                new Date(signedJWT.getJWTClaimsSet().getIssueTime()
+                        .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                        .toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
         var verified = signedJWT.verify(verifier);
 
-        if (!verified && expiredTime.after(new Date()))
+        if (!(verified && expiredTime.after(new Date())))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         if (invalidatedTokenRepo.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         return signedJWT;
+    }
+
+    public AuthenticationResponse refreshToken(RefreshRequest request)
+            throws ParseException, JOSEException {
+        var signJWT = verifyToken(request.getToken(), true);
+
+        disableToken(signJWT);
+
+        var username = signJWT.getJWTClaimsSet().getSubject();
+        var user = userRepo.findByUsername(username).orElseThrow(
+                () -> new AppException(ErrorCode.UNAUTHENTICATED)
+        );
+
+        return AuthenticationResponse.builder()
+                .token(generateToken(user))
+                .authenticated(true)
+                .build();
     }
 
     private String generateToken(User user) throws JOSEException {
@@ -121,7 +154,7 @@ public class AuthenticationService {
                 .issuer("devtuna.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
