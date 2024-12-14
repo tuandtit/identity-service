@@ -2,10 +2,10 @@ package com.devtuna.identityservice.mapper;
 
 import java.util.List;
 
-public interface EntityMapper<D,E> {
-    E toEntity(D dto);
-    D toDto(E entity);
-    List<D> toDtos(List<E> entities);
-    List<E> toEntities(List<D> dto);
+public interface EntityMapper<REQ,E, RES> {
+    E toEntity(REQ dto);
+    RES toDtoResponse(E entity);
+    List<RES> toDtosResponse(List<E> entities);
+    List<E> toEntities(List<REQ> dto);
 
 }
