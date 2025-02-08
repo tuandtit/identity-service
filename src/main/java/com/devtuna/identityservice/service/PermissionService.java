@@ -1,15 +1,17 @@
 package com.devtuna.identityservice.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.devtuna.identityservice.dto.request.PermissionRequest;
 import com.devtuna.identityservice.dto.response.PermissionResponse;
 import com.devtuna.identityservice.entity.Permission;
 import com.devtuna.identityservice.mapper.PermissionMapper;
 import com.devtuna.identityservice.repository.PermissionRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service

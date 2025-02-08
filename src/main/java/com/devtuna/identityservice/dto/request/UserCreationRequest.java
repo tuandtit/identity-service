@@ -1,11 +1,13 @@
 package com.devtuna.identityservice.dto.request;
 
+import java.time.LocalDate;
+
+import jakarta.validation.constraints.Size;
+
 import com.devtuna.identityservice.validator.DobConstraint;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Size;
-import lombok.*;
 
-import java.time.LocalDate;
+import lombok.*;
 
 @Setter
 @Getter

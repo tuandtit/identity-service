@@ -1,17 +1,19 @@
 package com.devtuna.identityservice.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
 import com.devtuna.identityservice.dto.request.RoleRequest;
 import com.devtuna.identityservice.dto.response.ApiResponse;
 import com.devtuna.identityservice.dto.response.RoleResponse;
 import com.devtuna.identityservice.service.RoleService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController

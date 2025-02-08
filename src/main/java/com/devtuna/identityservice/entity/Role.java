@@ -1,11 +1,12 @@
 package com.devtuna.identityservice.entity;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import lombok.*;
 
-import java.util.Set;
+import lombok.*;
 
 @Setter
 @Getter
@@ -16,6 +17,7 @@ import java.util.Set;
 public class Role {
     @Id
     private String name;
+
     private String description;
 
     @ManyToMany

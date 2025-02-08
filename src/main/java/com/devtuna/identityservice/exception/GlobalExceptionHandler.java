@@ -1,8 +1,12 @@
 package com.devtuna.identityservice.exception;
 
-import com.nimbusds.jose.JOSEException;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
+
 import jakarta.validation.ConstraintViolation;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,10 +15,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
+import com.nimbusds.jose.JOSEException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -28,51 +31,40 @@ public class GlobalExceptionHandler {
                 .path(request.getDescription(false).replace("uri=", ""))
                 .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
                 .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .build();
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(value = AppException.class)
-    public ResponseEntity<ErrorResponse> handlingAppException(
-            AppException exception, WebRequest request
-    ) {
+    public ResponseEntity<ErrorResponse> handlingAppException(AppException exception, WebRequest request) {
         ErrorCode errorCode = exception.getErrorCode();
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(new Date())
                 .path(request.getDescription(false).replace("uri=", ""))
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .build();
 
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(errorResponse);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(errorResponse);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handlingAccessDeniedException(
-            AccessDeniedException accessDeniedException, WebRequest request
-    ) {
+            AccessDeniedException accessDeniedException, WebRequest request) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(new Date())
                 .path(request.getDescription(false).replace("uri=", ""))
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .build();
 
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(errorResponse);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handlingValidation(
-            MethodArgumentNotValidException exception, WebRequest request
-    ) {
+            MethodArgumentNotValidException exception, WebRequest request) {
         String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
 
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
@@ -80,8 +72,8 @@ public class GlobalExceptionHandler {
         try {
             errorCode = ErrorCode.valueOf(enumKey);
 
-            var constraintViolation = exception.getBindingResult()
-                    .getAllErrors().get(0).unwrap(ConstraintViolation.class);
+            var constraintViolation =
+                    exception.getBindingResult().getAllErrors().get(0).unwrap(ConstraintViolation.class);
 
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
 
@@ -95,13 +87,13 @@ public class GlobalExceptionHandler {
                 .timestamp(new Date())
                 .path(request.getDescription(false).replace("uri=", ""))
                 .code(errorCode.getCode())
-                .message(Objects.nonNull(attributes) ? mapAttribute(errorCode.getMessage(), attributes) : errorCode.getMessage())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .message(
+                        Objects.nonNull(attributes)
+                                ? mapAttribute(errorCode.getMessage(), attributes)
+                                : errorCode.getMessage())
                 .build();
 
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(errorResponse);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(errorResponse);
     }
 
     private String mapAttribute(String message, Map<String, Object> attributes) {
@@ -122,11 +114,8 @@ public class GlobalExceptionHandler {
                 .path(request.getDescription(false).replace("uri=", ""))
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .build();
 
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(errorResponse);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(errorResponse);
     }
 }

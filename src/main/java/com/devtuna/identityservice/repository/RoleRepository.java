@@ -1,7 +1,7 @@
 package com.devtuna.identityservice.repository;
 
-import com.devtuna.identityservice.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RoleRepository extends JpaRepository<Role, String> {
-}
+import com.devtuna.identityservice.entity.Role;
+
+public interface RoleRepository extends JpaRepository<Role, String> {}

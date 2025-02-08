@@ -1,20 +1,23 @@
 package com.devtuna.identityservice.controller;
 
+import java.util.List;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
 import com.devtuna.identityservice.dto.request.UserCreationRequest;
 import com.devtuna.identityservice.dto.request.UserUpdateRequest;
 import com.devtuna.identityservice.dto.response.ApiResponse;
 import com.devtuna.identityservice.dto.response.UserResponse;
 import com.devtuna.identityservice.service.UserService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -57,7 +60,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/myInfo")
+    @GetMapping("/my-info")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder()
                 .code(HttpStatus.OK.value())
@@ -83,6 +86,4 @@ public class UserController {
                 .message("User with id: " + userId + " has been deleted")
                 .build();
     }
-
-
 }
