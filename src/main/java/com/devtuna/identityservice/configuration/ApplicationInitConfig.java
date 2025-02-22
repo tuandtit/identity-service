@@ -1,20 +1,22 @@
 package com.devtuna.identityservice.configuration;
 
-import com.devtuna.identityservice.constant.PredefinedRole;
-import com.devtuna.identityservice.entity.Role;
-import com.devtuna.identityservice.entity.User;
-import com.devtuna.identityservice.repository.RoleRepository;
-import com.devtuna.identityservice.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.NonFinal;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashSet;
+
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.HashSet;
+import com.devtuna.identityservice.constant.PredefinedRole;
+import com.devtuna.identityservice.entity.Role;
+import com.devtuna.identityservice.entity.User;
+import com.devtuna.identityservice.repository.RoleRepository;
+import com.devtuna.identityservice.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -22,6 +24,7 @@ import java.util.HashSet;
 public class ApplicationInitConfig {
 
     private final PasswordEncoder passwordEncoder;
+
     @NonFinal
     static final String ADMIN_USER_NAME = "admin";
 
@@ -57,7 +60,7 @@ public class ApplicationInitConfig {
                         .build();
 
                 userRepository.save(user);
-            log.info("admin user has been created with default password: admin, please change it");
+                log.info("admin user has been created with default password: admin, please change it");
             }
             log.info("Application initialization completed .....");
         };

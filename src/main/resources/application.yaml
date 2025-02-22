@@ -4,16 +4,21 @@ server:
     context-path: /identity
 
 spring:
+  application:
+    name: identity-service
   datasource:
-    url: "jdbc:mysql://localhost:3306/identity_service"
+    url: ${DBMS_CONNECTION:jdbc:mysql://host.docker.internal:3306/identity_service}
     driverClassName: "com.mysql.cj.jdbc.Driver"
-    username: root
-    password: tuan6326
+    username: ${DBMS_USERNAME:root}
+    password: ${DBMS_PASSWORD:tuan6326}
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-jwt:
-  signerKey: "NsMbalb1tpOXCAghdPR93q7E5fGoDaggLIqvogcdywm3kxVhEiZxeURHEenf8il8"
-  valid-duration: 3600 #seconds
-  refreshable-duration: 360000 #seconds
+  profiles:
+    active: @spring.profiles.active@
+
+  jwt:
+    signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
+    valid-duration: 3600 # in second
+    refreshable-duration: 36000 # in seconds

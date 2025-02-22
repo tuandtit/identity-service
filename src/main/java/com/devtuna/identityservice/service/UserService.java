@@ -1,5 +1,15 @@
 package com.devtuna.identityservice.service;
 
+import java.util.HashSet;
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.devtuna.identityservice.constant.PredefinedRole;
 import com.devtuna.identityservice.dto.request.UserCreationRequest;
 import com.devtuna.identityservice.dto.request.UserUpdateRequest;
@@ -11,17 +21,9 @@ import com.devtuna.identityservice.exception.ErrorCode;
 import com.devtuna.identityservice.mapper.UserMapper;
 import com.devtuna.identityservice.repository.RoleRepository;
 import com.devtuna.identityservice.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -34,8 +36,7 @@ public class UserService {
 
     public UserResponse createUser(UserCreationRequest request) {
         log.info("UserService create user");
-        if (userRepository.existsByUsername(request.getUsername()))
-            throw new AppException(ErrorCode.USER_EXISTED);
+        if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
 
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -81,7 +82,7 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-//    @PreAuthorize("hasAuthority('APPROVE_POST')")
+    //    @PreAuthorize("hasAuthority('APPROVE_POST')")
     public List<UserResponse> getUsers() {
         log.info("in method get users");
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();

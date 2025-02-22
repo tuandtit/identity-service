@@ -1,0 +1,8 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+jwt:
+  signerKey: ${JWT_SIGNERKEY:1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij}
+  valid-duration: 7200 #seconds
+  refreshable-duration: 72000 #seconds
